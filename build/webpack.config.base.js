@@ -2,22 +2,28 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const isDev = process.env.NODE_ENV === "development";
-const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
-const smp = new SpeedMeasurePlugin();
+// const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
+// const smp = new SpeedMeasurePlugin();
 const webpack = require("webpack");
-const {CleanWebpackPlugin}=require('clean-webpack-plugin')
-
+const { CleanWebpackPlugin } = require("clean-webpack-plugin");
+const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const config = {
-  entry: path.resolve(__dirname, "../src/main.ts"),
-  output: {
-    path: path.resolve(__dirname, "../dist"),
-    // publicPath: "", //公共  解析路径未来希望可以动态配置
-    filename: "[name].[hash:8].js", //filename 指列在 entry 中，打包后输出的文件的名称。开发环境下，filename 不能使用 contenthash/chunkhash
-    chunkFilename: "[name].[chunkhash].bundle.js", //chunkFilename 指未列在 entry 中，却又需要被打包出来的文件的名称
-  },
+  entry: path.resolve(__dirname, "../src/main.tsx"),
   // stats: 'errors-only',
   module: {
     rules: [
+      {
+        enforce: "pre",
+        test: /\.(jsx?|tsx?)$/,
+        exclude: /node_modules/,
+        include: path.resolve(__dirname, "../src"),
+        loader: "eslint-loader",
+        options: {
+          emitWarning: true, // 这个配置需要打开，才能在控制台输出warning信息
+          emitError: true, // 这个配置需要打开，才能在控制台输出error信息
+          fix: true, // 是否自动修复，如果是，每次保存时会自动修复可以修复的部分
+        },
+      },
       {
         test: /\.(jsx?|tsx?)$/,
         exclude: [/(node_modules)/, /public/],
@@ -51,28 +57,35 @@ const config = {
             },
           },
           "css-loader",
-          {
-            loader: "postcss-loader",
-            options: {
-              plugins: function () {
-                return [
-                  require("autoprefixer")({
-                    overrideBrowserslist: [">0.25%", "not dead"],
-                  }),
-                ];
-              },
-            },
-          },
+          "postcss-loader",
           "less-loader",
         ],
         exclude: /node_modules/,
       },
     ],
   },
+  resolve: {
+    extensions: [
+      ".tsx",
+      ".ts",
+      ".js",
+      ".jsx",
+      ".less",
+      ".scss",
+      ".css",
+      ".json",
+    ],
+    plugins: [
+      // 将 tsconfig.json 中的路径配置映射到 webpack 中
+      new TsconfigPathsPlugin({
+        configFile: path.resolve(__dirname, "../tsconfig.json"),
+      }),
+    ],
+  },
   plugins: [
-    new webpack.DllReferencePlugin({
-      manifest: path.resolve(__dirname, "../dist", "dll", "manifest.json"),
-    }),
+    // new webpack.HashedModuleIdsPlugin(),
+
+
     new CleanWebpackPlugin({
       cleanOnceBeforeBuildPatterns: ["**/*", "!dll", "!dll/**"], //不删除dll目录
     }),
@@ -94,4 +107,4 @@ const config = {
   ],
 };
 
-module.exports = smp.wrap(config);
+module.exports = config
