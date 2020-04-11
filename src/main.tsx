@@ -1,1 +1,7 @@
-console.log(148111823)
+
+
+
+
+if(module && module.hot) {
+    module.hot.accept()
+}

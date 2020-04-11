@@ -2,14 +2,12 @@ const path = require("path");
 const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const isDev = process.env.NODE_ENV === "development";
-// const SpeedMeasurePlugin = require("speed-measure-webpack-plugin");
-// const smp = new SpeedMeasurePlugin();
 const webpack = require("webpack");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const config = {
   entry: path.resolve(__dirname, "../src/main.tsx"),
-  // stats: 'errors-only',
+  stats: 'errors-only',
   module: {
     rules: [
       {
@@ -83,14 +81,12 @@ const config = {
     ],
   },
   plugins: [
-    // new webpack.HashedModuleIdsPlugin(),
-
-
+    new webpack.HashedModuleIdsPlugin(),
     new CleanWebpackPlugin({
       cleanOnceBeforeBuildPatterns: ["**/*", "!dll", "!dll/**"], //不删除dll目录
     }),
     new HtmlWebpackPlugin({
-      title: "index",
+      title: "首页",
       template: path.resolve(__dirname, "../public/index.html"),
       inject: true,
       hash: true,

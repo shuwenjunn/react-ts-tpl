@@ -5,7 +5,7 @@ const path = require("path");
 const DllReferencePlugin = require("webpack/lib/DllReferencePlugin");
 module.exports = smart(base, {
   mode: "development",
-  devtool: 'cheap-module-eval-source-map',
+  devtool: "cheap-module-eval-source-map",
   // devtool: "source-map",
   output: {
     // 开发环境下，filename 不能使用 contenthash/chunkhash
@@ -14,16 +14,23 @@ module.exports = smart(base, {
     publicPath: "/",
   },
   plugins: [
-    // new FriendlyErrorsPlugin(),
+    new DllReferencePlugin({
+      manifest: require(path.resolve(
+        __dirname,
+        "../dist",
+        "dll",
+        "manifest.json"
+      )),
+    }),
     new webpack.HotModuleReplacementPlugin(),
-    // dll 不要和 splitChunks 一起使用，会出问题
-    // dll 对于 webpack 4 来说，貌似提升的速度不大明显
-
+    new webpack.DefinePlugin({
+      "process.env": JSON.stringify("development"),
+    }),
   ],
   watchOptions: {
     aggregateTimeout: 500,
     poll: 1000,
-    ignored: /node_modules/,
+    ignored: /node_modules/, //忽略的监听文件
   },
   devServer: {
     contentBase: "./",
@@ -35,7 +42,7 @@ module.exports = smart(base, {
     inline: true,
     hot: true,
     overlay: {
-      errors: true,
+      errors: true, // 当出现错误时在页面打印错误信息
       warnings: true,
     },
     // open: true,
