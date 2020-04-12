@@ -5,9 +5,10 @@ const isDev = process.env.NODE_ENV === "development";
 const webpack = require("webpack");
 const { CleanWebpackPlugin } = require("clean-webpack-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
+
 const config = {
   entry: path.resolve(__dirname, "../src/main.tsx"),
-  stats: 'errors-only',
+  stats: "errors-only",
   module: {
     rules: [
       {
@@ -103,4 +104,10 @@ const config = {
   ],
 };
 
-module.exports = config
+if (process.env.npm_config_report) {
+  const BundleAnalyzerPlugin = require("webpack-bundle-analyzer")
+    .BundleAnalyzerPlugin;
+  config.plugins.push(new BundleAnalyzerPlugin());
+}
+
+module.exports = config;
